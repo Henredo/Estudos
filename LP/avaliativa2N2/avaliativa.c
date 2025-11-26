@@ -15,28 +15,31 @@ int fabricar(BrindeInfo Dados[][3], int cor, int tipo, int quantidade);
 void mostrar_ser_fabricado(Distribuidora distribuidoras[],BrindeInfo Dados[][3]);
 void relatorio_pbrinde(int brinde,BrindeInfo Dados[][3]);
 void relatorio_pcor(int cor,BrindeInfo Dados[][3]);
+void relatorio_entregas(BrindeInfo Dados[][3]);
 int solicitar_entrega(int local,Distribuidora distribuidoras[4],BrindeInfo Dados[][3]);
 int tentar_realizar_entrega(int local,Distribuidora distribuidoras[4],BrindeInfo Dados[][3]);
+void status_distribuidora(int local,Distribuidora distribuidoras[]);
 void inserir_dados();
 void inserir_frete(int local);
 
 int main(){
     BrindeInfo Dados[4][3]; //cor/tipo
-    Distribuidora distribuidoras[4];
+    Distribuidora distribuidoras[4]={0};
     FILE *arq_distribuidoras,*arq_dados;
     arq_distribuidoras = fopen("distribuidoras.dat","rb");
     if(arq_distribuidoras == NULL){
-        printf("Arquivo [distribuidoras.dat] não encontrado\n");
+        printf("\nArquivo [distribuidoras.dat] não encontrado\n");
         inserir_frete(-1);
     }
     fread(distribuidoras, sizeof(Distribuidora), 4, arq_distribuidoras);
     fclose(arq_distribuidoras);
     arq_dados = fopen("dados.dat","rb");
     if(arq_dados == NULL){
-        printf("Arquivo [dados.dat] não encontrado\n");
+        printf("\nArquivo [dados.dat] não encontrado\n");
         inserir_dados();
     }
     int escolha;
+    
     while(1==1){
        //print menu choice
        printf("\nAbrir menu de:\n[1]Fabricante.\n[2]Distribuidor.\n$ ");
@@ -59,28 +62,35 @@ int main(){
                scanf(" %i",&escolha);
                fabricar(Dados,escolha2,escolha1,escolha);
                for(int i=0;i<4;i++){
+                    printf("\n%i\n",i);
                    tentar_realizar_entrega(i,distribuidoras,Dados);
                 }
+                break;
                
                case 2:
                 mostrar_ser_fabricado(distribuidoras,Dados);
+                break;
 
                 case 3:
                 printf("\nInsira o brinde que deseja conferir :\n[1]Caneta\n[2]Chaveiro\n[3]Régua\n$ ");
                 scanf(" %i",&escolha);
                 relatorio_pbrinde(escolha-1,Dados);
+                break;
                 
                 case 4:
                 printf("\nInsira a cor que deseja conferir :\n[1]Branca\n[2]Azul\n[3]Preta\n[4]Vermelho\n$ ");
                 scanf(" %i",&escolha);
                 relatorio_pbrinde(escolha-1,Dados);
+                break;
                 
                 case 5:
-                /* code */
+                relatorio_entregas(Dados);
+                break;
                 
                 default:
                 break;
             }
+            break;
             
             case 2:
             int local=0;
@@ -94,12 +104,21 @@ int main(){
             case 1:
                 solicitar_entrega(local,distribuidoras,Dados);
                 tentar_realizar_entrega(local,distribuidoras,Dados);
+                break;
             
             case 2:
-                /* code */
+                status_distribuidora(local,distribuidoras);
+                break;
                 
             case 3:
                 inserir_frete(local);
+                arq_distribuidoras = fopen("distribuidoras.dat","rb");
+                if(arq_distribuidoras != NULL){
+                    fread(distribuidoras, sizeof(Distribuidora), 4, arq_distribuidoras);
+                    fclose(arq_distribuidoras);
+                }
+                break;
+        break;
             default:
                 break;
             }
@@ -154,8 +173,12 @@ void relatorio_pcor(int cor,BrindeInfo Dados[][3]){
     }
 }
 
-void relatorio_entregas(){
-    //
+void relatorio_entregas(BrindeInfo Dados[][3]){
+    for(int i=0;i<4;i++){
+        for(int n=0;n<3;n++){
+            printf("\nJa foram entregues %i brindes %i de cor %i !",Dados[i][n].q_entregue,n,i);
+        }
+    }
 }
 
 int solicitar_entrega(int local,Distribuidora distribuidoras[4],BrindeInfo Dados[][3]){
@@ -222,17 +245,27 @@ int tentar_realizar_entrega(int local,Distribuidora distribuidoras[4],BrindeInfo
     return 0;
 }
 
-void status_distribuidora(){
-    //
-}
-
-void editar_frete(){
-    //
+void status_distribuidora(int local,Distribuidora distribuidoras[]){
+    int espera=0;
+    for(int i=0;i<distribuidoras[local].pedidos_feitos;i++){
+        if(distribuidoras[local].pedido_espera[i]>0){
+            espera++;
+            printf("\nPedido [%i] em espera :",i);
+            for(int x=0;x<4;x++){
+                for(int y=0;y<3;y++){
+                    printf("\nBrinde %i de cor %i : %i unidades",x,y,distribuidoras[local].pedidos[i][x][y]);
+                }
+            }
+        }
+    }
+    if(espera==0){
+        printf("\nEssa distribuidora não possui pedidos em espera");
+    }
 }
 
 void inserir_frete(int local){
     FILE *arquivo;
-    Distribuidora distribuidoras[4];
+    Distribuidora distribuidoras[4]={0};
     int input;
     arquivo = fopen("distribuidoras.dat","rb");
     if(arquivo != NULL){
@@ -241,14 +274,14 @@ void inserir_frete(int local){
     fclose(arquivo);
     arquivo = fopen("distribuidoras.dat","wb");
     if (local >= 0){
-        printf("Insira o novo frete :\n$ ");
+        printf("\nInsira o novo frete :\n$ ");
         scanf(" %i",&input);
         distribuidoras[local].frete=input;
     }
     else{//para para inserir-frete seja executado sozinho, no qual vamos resetar distribuidoras.dat
         for(int i=0;i<4;i++){
             distribuidoras[i].pedidos_feitos=0;
-            printf("Insira o Frete para a distribuidora %i :\n$ ",i+1);
+            printf("\nInsira o Frete para a distribuidora %i :\n$ ",i+1);
             scanf(" %i",&input);
             distribuidoras[i].frete=input;
         }
@@ -259,7 +292,7 @@ void inserir_frete(int local){
 
 void inserir_dados(){
     FILE *arquivo;
-    BrindeInfo Dados[4][3];
+    BrindeInfo Dados[4][3]={0};
     int input;
     arquivo = fopen("dados.dat","rb");
     if(arquivo != NULL){
@@ -271,10 +304,10 @@ void inserir_dados(){
     for(int i=0;i<4;i++){
         for(int n=0;n<3;n++){
             Dados[i][n].q_a_fabricar=0;
-            printf("Insira o valor para o brinde %i * %i:\n$ ",i+1,n+1);
+            printf("\nInsira o valor para o brinde %i * %i:\n$ ",i+1,n+1);
             scanf(" %i",&input);
             Dados[i][n].valor_unitario=input;
-            printf("Insira a quantidade em deposito para o brinde %i * %i:\n$ ",i+1,n+1);
+            printf("\nInsira a quantidade em deposito para o brinde %i * %i:\n$ ",i+1,n+1);
             scanf(" %i",&input);
             Dados[i][n].q_deposito=input;
         }
