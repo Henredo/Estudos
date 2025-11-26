@@ -8,10 +8,14 @@ typedef struct{
 
 typedef struct{
     float frete;
-    int pedidos[100][4][3],pedidos_feitos,pedido_engravado[100]; //pedidos = n_pedido / cor / tipo
+    int pedidos[100][4][3],pedidos_feitos,pedido_engravado[100],pedido_espera[100]; //pedidos = n_pedido / cor / tipo
 }Distribuidora;
+
 //prototipos
+void inserir_frete(int local);
 int fabricar(BrindeInfo Dados[][3], int cor, int tipo, int quantidade);
+int solicitar_entrega(int local,Distribuidora distribuidoras[4],BrindeInfo Dados[][3]);
+void tentar_realizar_entrega(int local,Distribuidora distribuidoras[4],BrindeInfo Dados[][3]);
 
 int main(){
    BrindeInfo Dados[4][3]; //cor/tipo
@@ -20,7 +24,7 @@ int main(){
    arq_distribuidoras = fopen("distribuidoras.dat","rb");
    if(arq_distribuidoras == NULL){
     printf("Arquivo [distribuidoras.dat] não encontrado\n");
-    return 1;
+    inserir_frete(-1);
    }
    fread(distribuidoras, sizeof(Distribuidora), 4, arq_distribuidoras);
    fclose(arq_distribuidoras);
@@ -28,7 +32,6 @@ int main(){
    /*pegar o valor do frete de cada ponto de distrubuicao e dados 
    da matriz dados (tentar usar arquivos/mas nao eh obrigatorio)*/
    
-   //menu
    while(1==1){
        //print menu choice
        printf("\nAbrir menu de:\n[1]Fabricante.\n[2]Distribuidor.\n$ ");
@@ -68,7 +71,26 @@ int main(){
             }
             
             case 2:
+            int local=0;
+            printf("\nSelecione a distribuidora para fazer login :\n[1]Palmas\n[2]Gurupi\n[3]Goiania\n[4]Brasilia\n$ ");
+            scanf(" %i",&local);
+            local--;
             printf("\nSelecione a operação desejada\n[1]Solicitar entrega.\n[2]Status da distribuidora.\n[3]Editar frete.\n$ ");
+            scanf(" %i",&escolha);
+            switch (escolha)
+            {
+            case 1:
+                solicitar_entrega(local,distribuidoras,Dados);
+                tentar_realizar_entrega(local,distribuidoras,Dados);
+            
+            case 2:
+                /* code */
+                
+            case 3:
+                inserir_frete(local);
+            default:
+                break;
+            }
             break;
             
             default:
@@ -102,8 +124,58 @@ void relatorio_entregas(){
     //
 }
 
-void solicitar_entrega(){
-    //
+int solicitar_entrega(int local,Distribuidora distribuidoras[4],BrindeInfo Dados[][3]){
+    int Realizar=0;
+    do
+    {
+        int tipo,cor,quantidade,arte=0;
+        char escolha;
+        printf("\nSelecione o brinde que quer pedir :\n[1]Caneta\n[2]Chaveiro\n[3]Régua\n$ ");
+        scanf(" %i",&tipo);
+        printf("\nSelecione a cor do brinde :\n[1]Branca\n[2]Azul\n[3]Preta\n[4]Vermelha\n$ ");
+        scanf(" %i",&cor);
+        printf("\nSelecione a quantidade a se pedir :\n$ ");
+        scanf(" %i",&quantidade);
+        printf("\nEsse pedido terá arte no(s) brinde(s) [S/N]\n$ ");
+        scanf(" %c",&escolha);
+        if(escolha == 's' || escolha == 'S'){
+            arte++;
+        }
+        distribuidoras[local].pedidos[distribuidoras[local].pedidos_feitos][cor][tipo] = quantidade;
+        printf("\nSelecione :\n[1]Realizar pedido.\n[2]Adicionar item ao pedido");
+        scanf(" %i",&cor);
+        if(cor == 1){
+            Realizar++;
+        }
+        else{
+            printf("\nDeve-se notar que tentar adicionar do mesmo tipo com cor ja no pedido irá sobrescrever o pedido original");
+            Realizar = solicitar_entrega(local,distribuidoras,Dados);
+        }
+    } while (Realizar==0);
+    distribuidoras[local].pedidos_feitos++;
+    return Realizar;
+}
+
+void tentar_realizar_entrega(int local,Distribuidora distribuidoras[4],BrindeInfo Dados[][3]){
+    int sucesso=0;
+    for(int i=0;i<4;i++){
+        for(int n=0;n<3;n++){
+            if(distribuidoras[local].pedidos[distribuidoras[local].pedidos_feitos][i][n]>Dados[i][n].q_deposito){
+                sucesso++;
+            }
+        }
+    }
+    if(sucesso<1){
+        for(int i=0;i<4;i++){
+            for(int n=0;n<3;n++){
+                Dados[i][n].q_deposito-=distribuidoras[local].pedidos[distribuidoras[local].pedidos_feitos][i][n];
+                Dados[i][n].q_entregue+=distribuidoras[local].pedidos[distribuidoras[local].pedidos_feitos][i][n];
+            }
+        }
+    }
+    else{
+        distribuidoras[local].pedido_espera[distribuidoras[local].pedidos_feitos]++;
+    }
 }
 
 void status_distribuidora(){
@@ -114,6 +186,29 @@ void editar_frete(){
     //
 }
 
-
-
-//system("./frete.h %i",escolha);
+void inserir_frete(int local){
+    FILE *arquivo;
+    Distribuidora distribuidoras[4];
+    int input;
+    arquivo = fopen("distribuidoras.dat","rb");
+    if(arquivo != NULL){
+        fread(distribuidoras, sizeof(Distribuidora), 4, arquivo);
+    }
+    fclose(arquivo);
+    arquivo = fopen("distribuidoras.dat","wb");
+    if (local >= 0){
+        printf("Insira o novo frete :\n$ ");
+        scanf(" %i",&input);
+        distribuidoras[local].frete=input;
+    }
+    else{//para para inserir-frete seja executado sozinho, no qual vamos resetar distribuidoras.dat
+        for(int i=0;i<4;i++){
+            distribuidoras[i].pedidos_feitos=0;
+            printf("Insira o Frete para a distribuidora %i :\n$ ",i+1);
+            scanf(" %i",&input);
+            distribuidoras[i].frete=input;
+        }
+        fwrite(distribuidoras, sizeof(Distribuidora), 4, arquivo);
+    }
+    fclose(arquivo);
+}
