@@ -38,6 +38,7 @@ int main(){
         printf("\nArquivo [dados.dat] não encontrado\n");
         inserir_dados();
     }
+    fclose(arq_dados);
     int escolha;
     
     while(1==1){
@@ -62,7 +63,6 @@ int main(){
                scanf(" %i",&escolha);
                fabricar(Dados,escolha2,escolha1,escolha);
                for(int i=0;i<4;i++){
-                    printf("\n%i\n",i);
                    tentar_realizar_entrega(i,distribuidoras,Dados);
                 }
                 break;
@@ -199,6 +199,7 @@ int solicitar_entrega(int local,Distribuidora distribuidoras[4],BrindeInfo Dados
         if(escolha == 's' || escolha == 'S'){
             arte++;
         }
+        distribuidoras[local].pedido_engravado[distribuidoras[local].pedidos_feitos]= arte;
         distribuidoras[local].pedidos[distribuidoras[local].pedidos_feitos][cor][tipo] = quantidade;
         printf("\nSelecione :\n[1]Realizar pedido.\n[2]Adicionar item ao pedido");
         scanf(" %i",&cor);
@@ -229,8 +230,13 @@ int tentar_realizar_entrega(int local,Distribuidora distribuidoras[4],BrindeInfo
     if(sucesso<1){
         for(int i=0;i<4;i++){
             for(int n=0;n<3;n++){
+                int preço;
                 Dados[i][n].q_deposito-=distribuidoras[local].pedidos[distribuidoras[local].pedidos_feitos][i][n];
                 Dados[i][n].q_entregue+=distribuidoras[local].pedidos[distribuidoras[local].pedidos_feitos][i][n];
+                if(distribuidoras[local].pedido_engravado[distribuidoras[local].pedidos_feitos]>0){
+                    preço += 100;
+                }
+                preço = (preço+(distribuidoras[local].pedidos[distribuidoras[local].pedidos_feitos][i][n]*Dados[i][n].valor_unitario)+distribuidoras[local].frete);
             }
         }
         distribuidoras[local].pedido_espera[distribuidoras[local].pedidos_feitos]=0;
@@ -292,7 +298,7 @@ void inserir_frete(int local){
 
 void inserir_dados(){
     FILE *arquivo;
-    BrindeInfo Dados[4][3]={0};
+    BrindeInfo Dados[4][3];
     int input;
     arquivo = fopen("dados.dat","rb");
     if(arquivo != NULL){
@@ -304,10 +310,10 @@ void inserir_dados(){
     for(int i=0;i<4;i++){
         for(int n=0;n<3;n++){
             Dados[i][n].q_a_fabricar=0;
-            printf("\nInsira o valor para o brinde %i * %i:\n$ ",i+1,n+1);
+            printf("\nInsira o VALOR UNITARIO para o brinde %i * %i:\n$ ",i+1,n+1);
             scanf(" %i",&input);
             Dados[i][n].valor_unitario=input;
-            printf("\nInsira a quantidade em deposito para o brinde %i * %i:\n$ ",i+1,n+1);
+            printf("\nInsira a QUANTIDADE em deposito para o brinde %i * %i:\n$ ",i+1,n+1);
             scanf(" %i",&input);
             Dados[i][n].q_deposito=input;
         }
