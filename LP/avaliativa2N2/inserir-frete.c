@@ -17,14 +17,14 @@ void main(int argc,char* argv[]){
     fclose(arquivo);
     arquivo = fopen("distribuidoras.dat","wb");
     if (argc > 1){
-        printf("Insira o novo frete :\n");
+        printf("Insira o novo frete :\n$ ");
         scanf(" %i",&input);
         distribuidoras[atoi(argv[1])].frete=input;
     }
     else{//para para inserir-frete seja executado sozinho, no qual vamos resetar distribuidoras.dat
         for(int i=0;i<4;i++){
             distribuidoras[i].pedidos_feitos=0;
-            printf("Insira o Frete para a distribuidora %i :\n",i+1);
+            printf("Insira o Frete para a distribuidora %i :\n$ ",i+1);
             scanf(" %i",&input);
             distribuidoras[i].frete=input;
         }
