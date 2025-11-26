@@ -15,6 +15,7 @@ int main(){
     existem 4 pontos de distribuicao
     */
     BrindeInfo Dados[4][3]; //cor/tipo
+    Distribuidora distribuidoras[4];
     int escolha;
     /*pegar o valor do frete de cada ponto de distrubuicao e dados 
     da matriz dados (tentar usar arquivos/mas nao eh obrigatorio)*/
