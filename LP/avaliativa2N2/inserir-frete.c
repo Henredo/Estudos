@@ -3,7 +3,7 @@
 
 typedef struct{
     float frete;
-    int pedidos[100][4][3],pedidos_feitos,pedido_engravado[100]; //pedidos = n_pedido / cor / tipo
+    int pedidos[100][4][3],pedidos_feitos,pedido_engravado[100];
 }Distribuidora;
 
 void main(int argc,char* argv[]){
@@ -21,7 +21,7 @@ void main(int argc,char* argv[]){
         scanf(" %i",&input);
         distribuidoras[atoi(argv[1])].frete=input;
     }
-    else{//para se inserir-frete seja executado sozinho, no qual vamos resetar distribuidoras.dat
+    else{//para para inserir-frete seja executado sozinho, no qual vamos resetar distribuidoras.dat
         for(int i=0;i<4;i++){
             distribuidoras[i].pedidos_feitos=0;
             printf("Insira o Frete para a distribuidora %i :\n",i+1);
