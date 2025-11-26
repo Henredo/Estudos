@@ -11,12 +11,14 @@ typedef struct{
     int pedidos[100][4][3],pedidos_feitos,pedido_engravado[100],pedido_espera[100]; //pedidos = n_pedido / cor / tipo
 }Distribuidora;
 
-void inserir_dados();
-void inserir_frete(int local);
 int fabricar(BrindeInfo Dados[][3], int cor, int tipo, int quantidade);
 void mostrar_ser_fabricado(Distribuidora distribuidoras[],BrindeInfo Dados[][3]);
+void relatorio_pbrinde(int brinde,BrindeInfo Dados[][3]);
+void relatorio_pcor(int cor,BrindeInfo Dados[][3]);
 int solicitar_entrega(int local,Distribuidora distribuidoras[4],BrindeInfo Dados[][3]);
 int tentar_realizar_entrega(int local,Distribuidora distribuidoras[4],BrindeInfo Dados[][3]);
+void inserir_dados();
+void inserir_frete(int local);
 
 int main(){
     BrindeInfo Dados[4][3]; //cor/tipo
@@ -64,10 +66,14 @@ int main(){
                 mostrar_ser_fabricado(distribuidoras,Dados);
 
                 case 3:
-                /* code */
+                printf("\nInsira o brinde que deseja conferir :\n[1]Caneta\n[2]Chaveiro\n[3]Régua\n$ ");
+                scanf(" %i",&escolha);
+                relatorio_pbrinde(escolha-1,Dados);
                 
                 case 4:
-                /* code */
+                printf("\nInsira a cor que deseja conferir :\n[1]Branca\n[2]Azul\n[3]Preta\n[4]Vermelho\n$ ");
+                scanf(" %i",&escolha);
+                relatorio_pbrinde(escolha-1,Dados);
                 
                 case 5:
                 /* code */
@@ -136,12 +142,16 @@ void mostrar_ser_fabricado(Distribuidora distribuidoras[],BrindeInfo Dados[][3])
     }
 }
 
-void relatorio_pbrinde(){
-    //
+void relatorio_pbrinde(int brinde,BrindeInfo Dados[][3]){
+    for(int i=0;i<4;i++){
+        printf("\nExistem %i brindes da cor %i no deposito nesse momento.",Dados[i][brinde].q_deposito,i+1);
+    }
 }
 
-void relatorio_pcor(){
-    //
+void relatorio_pcor(int cor,BrindeInfo Dados[][3]){
+    for(int i=0;i<3;i++){
+        printf("\nSerão nessessarios %i no deposito nesse momento.",Dados[cor][i].q_a_fabricar,i+1);
+    }
 }
 
 void relatorio_entregas(){
@@ -202,6 +212,13 @@ int tentar_realizar_entrega(int local,Distribuidora distribuidoras[4],BrindeInfo
         }
         distribuidoras[local].pedido_espera[distribuidoras[local].pedidos_feitos]=0;
     }
+    else{
+        for(int i=0;i<4;i++){
+            for(int n=0;n<3;n++){
+                Dados[i][n].q_a_fabricar = distribuidoras[local].pedidos[distribuidoras[local].pedidos_feitos][i][n];
+            }
+        }
+    }
     return 0;
 }
 
@@ -257,6 +274,9 @@ void inserir_dados(){
             printf("Insira o valor para o brinde %i * %i:\n$ ",i+1,n+1);
             scanf(" %i",&input);
             Dados[i][n].valor_unitario=input;
+            printf("Insira a quantidade em deposito para o brinde %i * %i:\n$ ",i+1,n+1);
+            scanf(" %i",&input);
+            Dados[i][n].q_deposito=input;
         }
     }
     fwrite(Dados, sizeof(BrindeInfo), 4 * 3, arquivo);
