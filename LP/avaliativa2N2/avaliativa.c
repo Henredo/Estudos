@@ -11,28 +11,31 @@ typedef struct{
     int pedidos[100][4][3],pedidos_feitos,pedido_engravado[100],pedido_espera[100]; //pedidos = n_pedido / cor / tipo
 }Distribuidora;
 
-//prototipos
+void inserir_dados();
 void inserir_frete(int local);
 int fabricar(BrindeInfo Dados[][3], int cor, int tipo, int quantidade);
+void mostrar_ser_fabricado(Distribuidora distribuidoras[],BrindeInfo Dados[][3]);
 int solicitar_entrega(int local,Distribuidora distribuidoras[4],BrindeInfo Dados[][3]);
-void tentar_realizar_entrega(int local,Distribuidora distribuidoras[4],BrindeInfo Dados[][3]);
+int tentar_realizar_entrega(int local,Distribuidora distribuidoras[4],BrindeInfo Dados[][3]);
 
 int main(){
-   BrindeInfo Dados[4][3]; //cor/tipo
-   Distribuidora distribuidoras[4];
-   FILE *arq_distribuidoras;
-   arq_distribuidoras = fopen("distribuidoras.dat","rb");
-   if(arq_distribuidoras == NULL){
-    printf("Arquivo [distribuidoras.dat] não encontrado\n");
-    inserir_frete(-1);
-   }
-   fread(distribuidoras, sizeof(Distribuidora), 4, arq_distribuidoras);
-   fclose(arq_distribuidoras);
-   int escolha;
-   /*pegar o valor do frete de cada ponto de distrubuicao e dados 
-   da matriz dados (tentar usar arquivos/mas nao eh obrigatorio)*/
-   
-   while(1==1){
+    BrindeInfo Dados[4][3]; //cor/tipo
+    Distribuidora distribuidoras[4];
+    FILE *arq_distribuidoras,*arq_dados;
+    arq_distribuidoras = fopen("distribuidoras.dat","rb");
+    if(arq_distribuidoras == NULL){
+        printf("Arquivo [distribuidoras.dat] não encontrado\n");
+        inserir_frete(-1);
+    }
+    fread(distribuidoras, sizeof(Distribuidora), 4, arq_distribuidoras);
+    fclose(arq_distribuidoras);
+    arq_dados = fopen("dados.dat","rb");
+    if(arq_dados == NULL){
+        printf("Arquivo [dados.dat] não encontrado\n");
+        inserir_dados();
+    }
+    int escolha;
+    while(1==1){
        //print menu choice
        printf("\nAbrir menu de:\n[1]Fabricante.\n[2]Distribuidor.\n$ ");
        scanf(" %i",&escolha);
@@ -53,10 +56,13 @@ int main(){
                printf("\nInforme aquantidade a ser fabricada :\n$ ");
                scanf(" %i",&escolha);
                fabricar(Dados,escolha2,escolha1,escolha);
+               for(int i=0;i<4;i++){
+                   tentar_realizar_entrega(i,distribuidoras,Dados);
+                }
                
                case 2:
-                /* code */
-                
+                mostrar_ser_fabricado(distribuidoras,Dados);
+
                 case 3:
                 /* code */
                 
@@ -103,13 +109,31 @@ int main(){
 
 int fabricar(BrindeInfo Dados[][3], int cor, int tipo, int quantidade){    
     Dados[cor][tipo].q_deposito = Dados[cor][tipo].q_deposito + quantidade;
-    //verificar se algum pedido pode ser atendido com outra funçao
-    
     return Dados[cor][tipo].q_deposito;
 }
 
-void mostrar_ser_fabricado(){
-    
+void mostrar_ser_fabricado(Distribuidora distribuidoras[],BrindeInfo Dados[][3]){
+    for(int i=0;i<4;i++){
+        if(distribuidoras[i].pedido_espera==0){
+            continue;
+        }
+        else{
+            int fabricar[4][3];
+            for(int x=0;x<4;x++){
+                for(int y=0;y<3;y++){
+                    fabricar[x][y]+=distribuidoras[i].pedidos[distribuidoras[i].pedidos_feitos][x][y];
+                }
+            }
+            for(int x=0;x<4;x++){
+                for(int y=0;y<3;y++){
+                    printf("\nDevem ser fabricadas %i do brinde %i * %i",y+1,x+1);
+                    if(Dados[x][y].q_deposito<50){
+                        printf("\nEsse brinde tem menos de 50 unidades no estoque!");
+                    }
+                }
+            }
+        }
+    }
 }
 
 void relatorio_pbrinde(){
@@ -125,6 +149,7 @@ void relatorio_entregas(){
 }
 
 int solicitar_entrega(int local,Distribuidora distribuidoras[4],BrindeInfo Dados[][3]){
+    distribuidoras[local].pedido_espera[distribuidoras[local].pedidos_feitos]++;
     int Realizar=0;
     do
     {
@@ -156,7 +181,10 @@ int solicitar_entrega(int local,Distribuidora distribuidoras[4],BrindeInfo Dados
     return Realizar;
 }
 
-void tentar_realizar_entrega(int local,Distribuidora distribuidoras[4],BrindeInfo Dados[][3]){
+int tentar_realizar_entrega(int local,Distribuidora distribuidoras[4],BrindeInfo Dados[][3]){
+    if(distribuidoras[local].pedido_espera[distribuidoras[local].pedidos_feitos]==0){
+        return 1;
+    }
     int sucesso=0;
     for(int i=0;i<4;i++){
         for(int n=0;n<3;n++){
@@ -172,10 +200,9 @@ void tentar_realizar_entrega(int local,Distribuidora distribuidoras[4],BrindeInf
                 Dados[i][n].q_entregue+=distribuidoras[local].pedidos[distribuidoras[local].pedidos_feitos][i][n];
             }
         }
+        distribuidoras[local].pedido_espera[distribuidoras[local].pedidos_feitos]=0;
     }
-    else{
-        distribuidoras[local].pedido_espera[distribuidoras[local].pedidos_feitos]++;
-    }
+    return 0;
 }
 
 void status_distribuidora(){
@@ -210,5 +237,28 @@ void inserir_frete(int local){
         }
         fwrite(distribuidoras, sizeof(Distribuidora), 4, arquivo);
     }
+    fclose(arquivo);
+}
+
+void inserir_dados(){
+    FILE *arquivo;
+    BrindeInfo Dados[4][3];
+    int input;
+    arquivo = fopen("dados.dat","rb");
+    if(arquivo != NULL){
+        fread(Dados, sizeof(BrindeInfo), 4 * 3, arquivo);
+    }
+    fclose(arquivo);
+    arquivo = fopen("dados.dat","wb");
+    
+    for(int i=0;i<4;i++){
+        for(int n=0;n<3;n++){
+            Dados[i][n].q_a_fabricar=0;
+            printf("Insira o valor para o brinde %i * %i:\n$ ",i+1,n+1);
+            scanf(" %i",&input);
+            Dados[i][n].valor_unitario=input;
+        }
+    }
+    fwrite(Dados, sizeof(BrindeInfo), 4 * 3, arquivo);
     fclose(arquivo);
 }
