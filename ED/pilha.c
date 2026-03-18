@@ -17,6 +17,7 @@ int read_stack(pilha *stack){
     for (int i = 0; i < stack->quantidade; i++){
         printf("\n%d",stack->stack[i]);
     }
+    printf("\n------");
     return 0;
 }
 
@@ -49,8 +50,37 @@ int pop(pilha *stack){
 void main(){
     pilha teste;
     push(&teste,1);
-    push(&teste,10);
-    push(&teste,100);
+    push(&teste,20);
+    push(&teste,300);
+    push(&teste,4000);
+    push(&teste,50000);
+    push(&teste,600000);
+    push(&teste,7000000);
+    push(&teste,80000000);
+    push(&teste,900000000);
+    push(&teste,1000000000);
+    push(&teste,2000000000);
+    push(&teste,3000000000);
+    read_stack(&teste);
+    pop(&teste);
+    read_stack(&teste);
+    pop(&teste);
+    read_stack(&teste);
+    pop(&teste);
+    read_stack(&teste);
+    pop(&teste);
+    read_stack(&teste);
+    pop(&teste);
+    read_stack(&teste);
+    pop(&teste);
+    read_stack(&teste);
+    pop(&teste);
+    read_stack(&teste);
+    pop(&teste);
+    read_stack(&teste);
+    pop(&teste);
+    read_stack(&teste);
+    pop(&teste);
     read_stack(&teste);
     pop(&teste);
     read_stack(&teste);
