@@ -1,7 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="f402bee2-be71-42a6-a1e6-d1604fd67f5e" name="Changes" comment="" />
+    <list default="true" id="f402bee2-be71-42a6-a1e6-d1604fd67f5e" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/src/Exercicio5dulpa.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ED/braquets.c" beforeDir="false" afterPath="$PROJECT_DIR$/../ED/braquets.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/OOP/exercicio3.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/OOP/exercicio3.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/exercicio3.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/exercicio3.java" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -17,9 +23,9 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
   </component>
-  <component name="ProjectColorInfo"><![CDATA[{
-  "associatedIndex": 7
-}]]></component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 7
+}</component>
   <component name="ProjectId" id="3BOMZp1SD2r9VVrZfNbdAbWN2S5" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
@@ -27,7 +33,10 @@
   </component>
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
+    "Application.Exercicio4.executor": "Run",
+    "Application.Exercicio5dulpa.executor": "Run",
     "Application.exercicio2.executor": "Run",
+    "Application.exercicio3.executor": "Run",
     "ModuleVcsDetector.initialDetectionPerformed": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
